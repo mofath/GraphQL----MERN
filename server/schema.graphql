@@ -4,7 +4,7 @@ type Query {
 
 type Company {
   id: ID!
-  title: String
+  name: String
   descripton: String
 }
 
