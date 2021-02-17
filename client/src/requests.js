@@ -18,7 +18,7 @@ export async function loadJobs() {
   const query = `{
     jobs{
         id
-        titlez
+        title
         company{
             id
             name
