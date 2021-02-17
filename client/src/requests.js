@@ -80,6 +80,5 @@ export async function createJob(input) {
     }
   }`;
   const data = await graphqlRequest(mutation, { input });
-  console.log(data);
   return data;
 }
