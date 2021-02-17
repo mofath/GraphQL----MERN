@@ -6,6 +6,13 @@ const Query = {
   company: (root, args) => db.companies.get(args.id),
 };
 
+const Mutation = {
+  createJob: (root, args) => {
+    const id = db.jobs.create(args.input);
+    return db.jobs.get(id);
+  },
+};
+
 const Job = {
   company: (job) => db.companies.get(job.companyId),
 };
@@ -18,5 +25,6 @@ const Company = {
 module.exports = {
   Query,
   Job,
-  Company
+  Company,
+  Mutation,
 };
