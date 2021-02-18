@@ -23,25 +23,6 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-// async function graphqlRequest(query, variables = {}) {
-//   const request = {
-//     method: "POST",
-//     headers: { "content-type": "application/json" },
-//     body: JSON.stringify({ query, variables }),
-//   };
-//   if (isLoggedIn())
-//
-//   const response = await fetch(endPointURL, request);
-//   const responseBody = await response.json();
-//   if (responseBody.errors) {
-//     const errMesssage = responseBody.errors
-//       .map((err) => err.message)
-//       .join("\n");
-//     throw new Error(errMesssage);
-//   }
-//   return responseBody.data;
-// }
-
 export async function loadJobs() {
   const query = gql`
     {
