@@ -9,6 +9,18 @@ import gql from "graphql-tag";
 
 const endPointURL = "http://localhost:9000/graphql";
 
+const jobDetailFragment = gql`
+  fragment JobDetail on Job {
+    id
+    title
+    description
+    company {
+      id
+      name
+    }
+  }
+`;
+
 const companyQuery = gql`
   query CompanyQuery($id: ID!) {
     company(id: $id) {
@@ -26,48 +38,35 @@ const companyQuery = gql`
 const createJobMutaion = gql`
   mutation CreateJob($input: CreateJobInput) {
     job: createJob(input: $input) {
-      id
-      title
-      description
-      company {
-        id
-        name
-      }
+      ...JobDetail
     }
   }
+  ${jobDetailFragment}
 `;
 
 const jobQuery = gql`
   query JobQuery($id: ID!) {
     job(id: $id) {
-      id
-      title
-      company {
-        id
-        name
-      }
-      description
+      ...JobDetail
     }
   }
+  ${jobDetailFragment}
 `;
 
 const jobsQuery = gql`
- query JobsQuery {
+  query JobsQuery {
     jobs {
-      id
-      title
-      description
-      company {
-        id
-        name
-      }
+      ...JobDetail
     }
   }
+  ${jobDetailFragment}
 `;
 
 const authLink = new ApolloLink((operation, forward) => {
   if (isLoggedIn()) {
-    operation.setContext({ headers: { authorization: "Bearer " + getAccessToken() }});
+    operation.setContext({
+      headers: { authorization: "Bearer " + getAccessToken() },
+    });
   }
   return forward(operation);
 });
@@ -78,17 +77,23 @@ const client = new ApolloClient({
 });
 
 export async function loadJobs() {
-  const {data: { jobs } } = await client.query({ query: jobsQuery });
+  const {
+    data: { jobs },
+  } = await client.query({ query: jobsQuery });
   return jobs;
 }
 
 export async function loadJob(id) {
-  const { data: { job } } = await client.query({ query: jobQuery, variables: { id } });
+  const {
+    data: { job },
+  } = await client.query({ query: jobQuery, variables: { id } });
   return job;
 }
 
 export async function loadCompany(id) {
-  const { data: { company } } = await client.query({ query: companyQuery, variables: { id } });
+  const {
+    data: { company },
+  } = await client.query({ query: companyQuery, variables: { id } });
   return company;
 }
 
