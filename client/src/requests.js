@@ -9,6 +9,20 @@ import gql from "graphql-tag";
 
 const endPointURL = "http://localhost:9000/graphql";
 
+const jobQuery = gql`
+  query JobQuery($id: ID!) {
+    job(id: $id) {
+      id
+      title
+      company {
+        id
+        name
+      }
+      description
+    }
+  }
+`;
+
 const authLink = new ApolloLink((operation, forward) => {
   if (isLoggedIn()) {
     operation.setContext({
@@ -29,6 +43,7 @@ export async function loadJobs() {
       jobs {
         id
         title
+        description
         company {
           id
           name
@@ -36,25 +51,16 @@ export async function loadJobs() {
       }
     }
   `;
-  const { data: { jobs } } = await client.query({ query });
+  const {
+    data: { jobs },
+  } = await client.query({ query });
   return jobs;
 }
 
 export async function loadJob(id) {
-  const query = gql`
-    query JobQuery($id: ID!) {
-      job(id: $id) {
-        id
-        title
-        company {
-          id
-          name
-        }
-        description
-      }
-    }
-  `;
-  const { data: { job } } = await client.query({ query, variables: { id } });
+  const {
+    data: { job },
+  } = await client.query({ query: jobQuery, variables: { id } });
   return job;
 }
 
@@ -72,7 +78,9 @@ export async function loadCompany(id) {
       }
     }
   `;
-  const { data: { company } } = await client.query({ query, variables: { id } });
+  const {
+    data: { company },
+  } = await client.query({ query, variables: { id } });
   return company;
 }
 
@@ -82,6 +90,7 @@ export async function createJob(input) {
       job: createJob(input: $input) {
         id
         title
+        description
         company {
           id
           name
@@ -89,6 +98,14 @@ export async function createJob(input) {
       }
     }
   `;
-  const { job } = await client.mutate({ mutation, variables: { input } });
+  const {
+    data: { job },
+  } = await client.mutate({
+    mutation,
+    variables: { input },
+    update: (cache, { data }) => {
+      cache.writeQuery({ query: jobQuery, variables: data.job.id, data });
+    },
+  });
   return job;
 }
